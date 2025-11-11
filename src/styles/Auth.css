@@ -1,0 +1,224 @@
+.auth-container {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  padding: 2rem;
+  flex: 1;
+  width: 100%;
+}
+
+.auth-card {
+  background: white;
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 450px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card h2 {
+  margin-bottom: 2rem;
+  color: var(--text-dark);
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 3.2rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  background: white;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.password-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-dark);
+  height: 100%;
+}
+
+.password-input-wrapper input:focus {
+  outline: none;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  color: var(--primary-color);
+  font-weight: 600;
+  white-space: nowrap;
+  height: auto;
+}
+
+.password-toggle:hover {
+  color: #4f46e5;
+}
+
+.password-toggle:active {
+  color: #4f46e5;
+}
+
+.password-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.8rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  height: auto;
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.password-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--primary-color);
+}
+
+.password-checkbox-wrapper label {
+  margin: 0;
+  font-weight: normal;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  background: white;
+  color: var(--text-dark);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background: white;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.auth-card p {
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.auth-card a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.auth-card a:hover {
+  color: #4f46e5;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1.5rem;
+    min-height: auto;
+  }
+
+  .auth-card {
+    padding: 2rem;
+    max-width: 100%;
+  }
+
+  .auth-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+}

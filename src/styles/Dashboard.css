@@ -1,0 +1,228 @@
+.dashboard-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dashboard-header {
+  margin-bottom: 3rem;
+  padding: 3rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-radius: 1.25rem;
+  text-align: center;
+  width: 100%;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.dashboard-header p {
+  font-size: 1.1rem;
+  opacity: 0.95;
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.dashboard-tabs button {
+  padding: 1rem 1.75rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.dashboard-tabs button:hover {
+  color: var(--text-dark);
+}
+
+.dashboard-tabs button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.dashboard-content {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  flex: 1;
+  width: 100%;
+}
+
+.dashboard-content h2 {
+  margin-bottom: 2rem;
+  color: var(--text-dark);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  padding: 2.5rem;
+  border-radius: 1.25rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.stat-card h3 {
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.stat-card p {
+  font-size: 1rem;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* Sections */
+.overview-section,
+.my-events-section,
+.create-event-section,
+.registrations-section,
+.settings-section {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.my-events-section button {
+  margin-bottom: 2rem;
+  padding: 1rem 2rem;
+}
+
+.settings-section p {
+  margin: 1rem 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 2rem;
+  }
+
+  .dashboard-header {
+    padding: 2rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard-content {
+    padding: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1.5rem;
+  }
+
+  .dashboard-header {
+    padding: 2rem 1.5rem;
+    text-align: left;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .dashboard-header p {
+    font-size: 1rem;
+  }
+
+  .dashboard-tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+    margin-bottom: 1rem;
+  }
+
+  .dashboard-tabs button {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+
+  .dashboard-tabs button.active {
+    border-bottom: none;
+    border-left-color: var(--primary-color);
+  }
+
+  .dashboard-content {
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+
+  .dashboard-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .stat-card h3 {
+    font-size: 2rem;
+  }
+}
