@@ -8,6 +8,7 @@ const generateToken = (id, role) => {
 };
 
 export const signup = async (req, res, next) => {
+  
   try {
     const { name, email, password, role } = req.body;
 
@@ -50,6 +51,7 @@ export const signup = async (req, res, next) => {
 };
 
 export const login = async (req, res, next) => {
+  
   try {
     const { email, password } = req.body;
 
@@ -90,6 +92,7 @@ export const login = async (req, res, next) => {
 };
 
 export const getMe = async (req, res, next) => {
+  
   try {
     const user = await User.findById(req.user.id);
 

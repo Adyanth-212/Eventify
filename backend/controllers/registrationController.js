@@ -3,7 +3,7 @@ import Event from '../models/Event.js';
 import User from '../models/User.js';
 
 export const registerForEvent = async (req, res, next) => {
-  try {
+  try{
     const { eventId } = req.params;
 
     // Check if event exists
@@ -60,6 +60,7 @@ export const registerForEvent = async (req, res, next) => {
 };
 
 export const unregisterFromEvent = async (req, res, next) => {
+  
   try {
     const { eventId } = req.params;
 
@@ -96,6 +97,7 @@ export const unregisterFromEvent = async (req, res, next) => {
 };
 
 export const getMyRegistrations = async (req, res, next) => {
+  
   try {
     const registrations = await Registration.find({ user: req.user.id })
       .populate({
@@ -114,6 +116,7 @@ export const getMyRegistrations = async (req, res, next) => {
 };
 
 export const getEventRegistrations = async (req, res, next) => {
+  
   try {
     const { eventId } = req.params;
 

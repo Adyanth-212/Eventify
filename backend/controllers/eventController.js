@@ -2,6 +2,7 @@ import Event from '../models/Event.js';
 import User from '../models/User.js';
 
 export const getAllEvents = async (req, res, next) => {
+  
   try {
     const { status, category, page = 1, limit = 10 } = req.query;
     const filter = {};
@@ -35,6 +36,7 @@ export const getAllEvents = async (req, res, next) => {
 };
 
 export const getEventById = async (req, res, next) => {
+  
   try {
     const event = await Event.findById(req.params.id)
       .populate('organizer', 'name email profilePicture bio phone')
@@ -54,6 +56,7 @@ export const getEventById = async (req, res, next) => {
 };
 
 export const createEvent = async (req, res, next) => {
+  
   try {
     const { title, description, category, date, time, location, capacity, price, tags } = req.body;
 
@@ -92,6 +95,7 @@ export const createEvent = async (req, res, next) => {
 };
 
 export const updateEvent = async (req, res, next) => {
+  
   try {
     let event = await Event.findById(req.params.id);
 
@@ -120,6 +124,7 @@ export const updateEvent = async (req, res, next) => {
 };
 
 export const deleteEvent = async (req, res, next) => {
+  
   try {
     const event = await Event.findById(req.params.id);
 
@@ -149,6 +154,7 @@ export const deleteEvent = async (req, res, next) => {
 };
 
 export const searchEvents = async (req, res, next) => {
+  
   try {
     const { q } = req.query;
 

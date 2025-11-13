@@ -1,6 +1,7 @@
 import Feedback from '../models/Feedback.js';
 
 export const submitFeedback = async (req, res, next) => {
+  
   try {
     const { name, email, subject, message, type } = req.body;
 
@@ -29,6 +30,7 @@ export const submitFeedback = async (req, res, next) => {
 };
 
 export const getAllFeedback = async (req, res, next) => {
+  
   try {
     const feedback = await Feedback.find().sort({ createdAt: -1 });
 
@@ -42,6 +44,7 @@ export const getAllFeedback = async (req, res, next) => {
 };
 
 export const updateFeedbackStatus = async (req, res, next) => {
+  
   try {
     const { status } = req.body;
 
