@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { eventService, registrationService } from '../services/api';
 import { useAuth } from '../utils/useAuth';
+import { RegistrationModal } from '../components/Modal';
+import '../styles/EventDetails.css';
 
 export const EventDetails = () => {
   const { id } = useParams();
@@ -12,6 +14,8 @@ export const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [registration, setRegistration] = useState(null);
 
   const isRegistered = useMemo(() => {
     if (!user || !event?.attendees) return false;
@@ -45,7 +49,8 @@ export const EventDetails = () => {
     setActionLoading(true);
     setError('');
     try {
-      await registrationService.register(id);
+      const res = await registrationService.register(id);
+      setRegistration(res.data.registration);
       // Optimistic local update
       setEvent((prev) =>
         prev
@@ -56,6 +61,7 @@ export const EventDetails = () => {
             }
           : prev
       );
+      setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -86,63 +92,154 @@ export const EventDetails = () => {
 
   if (loading) return <div className="loading">Loading event...</div>;
   if (error) return (
-    <div className="error-message" style={{ padding: '1rem' }}>
+    <div className="error-message" style={{ padding: '2rem', margin: '2rem' }}>
       {error}
     </div>
   );
-  if (!event) return <div className="no-events">Event not found</div>;
+  if (!event) return <div className="no-events" style={{ padding: '2rem', margin: '2rem' }}>Event not found</div>;
 
-  const eventDate = new Date(event.date).toLocaleString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  const eventDate = new Date(event.date);
+  const formattedDate = eventDate.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  const formattedTime = event.time || eventDate.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit'
   });
 
+  const capacityPercentage = ((event.registeredCount || 0) / event.capacity) * 100;
+  const isFull = event.registeredCount >= event.capacity;
+
   return (
-    <div className="event-details" style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
-      <button onClick={() => navigate(-1)} className="btn-secondary" style={{ marginBottom: '1rem' }}>
-        ← Back
+    <div className="event-details">
+      <button onClick={() => navigate(-1)} className="back-button">
+        ← Back to Events
       </button>
 
-      <div className="event-hero" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <img
-          src={event.image || 'https://via.placeholder.com/480x300'}
-          alt={event.title}
-          style={{ width: '100%', maxWidth: 480, borderRadius: 12 }}
-        />
-        <div style={{ flex: 1, minWidth: 280 }}>
-          <h1 style={{ marginTop: 0 }}>{event.title}</h1>
-          <p><strong>📅 Date:</strong> {eventDate}</p>
-          <p><strong>📍 Location:</strong> {event.location}</p>
-          {event.price > 0 && <p><strong>💳 Price:</strong> ${event.price}</p>}
-          <p><strong>👥 Capacity:</strong> {event.registeredCount || 0} / {event.capacity}</p>
-          {event.tags?.length > 0 && (
-            <p><strong>🏷️ Tags:</strong> {event.tags.join(', ')}</p>
+      <div className="event-hero">
+        <div className="event-hero-image">
+          <img
+            src={event.image || 'https://via.placeholder.com/480x350?text=Event+Image'}
+            alt={event.title}
+          />
+        </div>
+        
+        <div className="event-hero-content">
+          {event.category && (
+            <div className="event-category-badge">{event.category}</div>
           )}
+          
+          <h1>{event.title}</h1>
+
+          <div className="event-info-grid">
+            <div className="event-info-item">
+              <div>
+                <strong>📅 Date</strong>
+                <span>{formattedDate}</span>
+              </div>
+            </div>
+            
+            <div className="event-info-item">
+              <div>
+                <strong>� Time</strong>
+                <span>{formattedTime}</span>
+              </div>
+            </div>
+            
+            <div className="event-info-item">
+              <div>
+                <strong>📍 Location</strong>
+                <span>{event.location}</span>
+              </div>
+            </div>
+            
+            {event.price > 0 && (
+              <div className="event-info-item">
+                <div>
+                  <strong>💳 Price</strong>
+                  <span>${event.price}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {event.tags?.length > 0 && (
+            <div className="event-tags">
+              {event.tags.map((tag, index) => (
+                <span key={index} className="event-tag">{tag}</span>
+              ))}
+            </div>
+          )}
+
+          <div className="event-capacity-bar">
+            <div className="capacity-label">
+              <span>👥 Attendees</span>
+              <span><strong>{event.registeredCount || 0}</strong> / {event.capacity}</span>
+            </div>
+            <div className="capacity-progress">
+              <div 
+                className="capacity-fill" 
+                style={{ width: `${Math.min(capacityPercentage, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {isFull && <div className="event-full-badge">⚠️ This event is full</div>}
+
           {event.organizer && (
-            <p>
-              <strong>🎤 Organizer:</strong> {event.organizer.name || 'Unknown'}
-            </p>
+            <div className="event-organizer">
+              <div className="event-organizer-avatar">
+                {event.organizer.name?.[0]?.toUpperCase() || 'O'}
+              </div>
+              <div className="event-organizer-info">
+                <h4>Organized by {event.organizer.name || 'Unknown'}</h4>
+                {event.organizer.email && <p>{event.organizer.email}</p>}
+              </div>
+            </div>
           )}
 
           {!isOrganizer && (
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+            <div className="event-actions">
               {isRegistered ? (
                 <button className="btn-secondary" onClick={handleUnregister} disabled={actionLoading}>
-                  {actionLoading ? 'Unregistering...' : 'Unregister'}
+                  {actionLoading ? 'Unregistering...' : '✓ Registered - Click to Unregister'}
                 </button>
               ) : (
-                <button className="btn-primary" onClick={handleRegister} disabled={actionLoading || (event.registeredCount >= event.capacity)}>
-                  {actionLoading ? 'Registering...' : (event.registeredCount >= event.capacity ? 'Event Full' : 'Register')}
+                <button 
+                  className="btn-primary" 
+                  onClick={handleRegister} 
+                  disabled={actionLoading || isFull}
+                >
+                  {actionLoading ? 'Processing...' : isFull ? '🚫 Event Full' : '🎟️ Register for Event'}
                 </button>
               )}
+            </div>
+          )}
+
+          {isOrganizer && (
+            <div className="event-actions">
+              <button className="btn-secondary" onClick={() => navigate(`/dashboard`)}>
+                📊 Manage Event
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      <section style={{ marginTop: '1.5rem' }}>
-        <h2>About this event</h2>
-        <p style={{ lineHeight: 1.6 }}>{event.description}</p>
-      </section>
+      <div className="event-description-section">
+        <h2>About This Event</h2>
+        <p>{event.description}</p>
+      </div>
+
+      <RegistrationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        event={event}
+        registration={registration}
+      />
     </div>
   );
 };

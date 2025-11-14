@@ -42,7 +42,9 @@ export const eventService = {
 export const authService = {
   login: (email, password) => apiClient.post('/auth/login', { email, password }),
   signup: (userData) => apiClient.post('/auth/signup', userData),
-  verifyToken: () => apiClient.get('/auth/me')
+  verifyToken: () => apiClient.get('/auth/me'),
+  updateProfile: (data) => apiClient.put('/auth/profile', data),
+  changePassword: (data) => apiClient.put('/auth/password', data)
 };
 
 export const registrationService = {

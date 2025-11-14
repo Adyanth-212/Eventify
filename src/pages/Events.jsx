@@ -10,16 +10,25 @@ export const Events = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all'); // all, upcoming, past
+  const [category, setCategory] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
-  }, [filter]);
+  }, [filter, category]);
 
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const response = await eventService.getAll({ status: filter });
+      const params = {};
+      if (filter !== 'all') params.status = filter;
+      if (category) params.category = category;
+      if (dateFrom) params.dateFrom = dateFrom;
+      if (dateTo) params.dateTo = dateTo;
+      
+      const response = await eventService.getAll(params);
       setEvents(response.data.events || []);
       setError('');
     } catch (err) {
@@ -61,32 +70,90 @@ export const Events = () => {
       <form className="search-bar" onSubmit={handleSearch}>
         <input
           type="text"
-          placeholder="Search events by title or category..."
+          placeholder="Search events by title..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <button type="submit" className="btn-primary">Search</button>
       </form>
 
-      <div className="filter-tabs">
-        <button
-          className={filter === 'all' ? 'active' : ''}
-          onClick={() => setFilter('all')}
-        >
-          All Events
-        </button>
-        <button
-          className={filter === 'upcoming' ? 'active' : ''}
-          onClick={() => setFilter('upcoming')}
-        >
-          Upcoming
-        </button>
-        <button
-          className={filter === 'past' ? 'active' : ''}
-          onClick={() => setFilter('past')}
-        >
-          Past Events
-        </button>
+      <div className="filters-section">
+        <div className="filter-tabs">
+          <button
+            className={filter === 'all' ? 'active' : ''}
+            onClick={() => setFilter('all')}
+          >
+            All Events
+          </button>
+          <button
+            className={filter === 'upcoming' ? 'active' : ''}
+            onClick={() => setFilter('upcoming')}
+          >
+            Upcoming
+          </button>
+          <button
+            className={filter === 'past' ? 'active' : ''}
+            onClick={() => setFilter('past')}
+          >
+            Past Events
+          </button>
+        </div>
+
+        <div className="advanced-filters">
+          <select 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">All Categories</option>
+            <option value="conference">Conference</option>
+            <option value="workshop">Workshop</option>
+            <option value="seminar">Seminar</option>
+            <option value="networking">Networking</option>
+            <option value="concert">Concert</option>
+            <option value="sports">Sports</option>
+            <option value="other">Other</option>
+          </select>
+
+          <div className="date-filters">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              placeholder="From"
+              className="filter-input"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              placeholder="To"
+              className="filter-input"
+            />
+            <button 
+              type="button" 
+              onClick={fetchEvents}
+              className="btn-secondary"
+            >
+              Apply
+            </button>
+            {(dateFrom || dateTo || category) && (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setDateFrom('');
+                  setDateTo('');
+                  setCategory('');
+                  fetchEvents();
+                }}
+                className="btn-secondary"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {error && <div className="error-message">{error}</div>}

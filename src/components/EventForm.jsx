@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { eventService } from '../services/api';
 import { useAuth } from '../utils/useAuth';
+import '../styles/EventForm.css';
 
 // Simple reusable EventForm (create mode); can be extended for edit by passing initialValues and onSuccess
 export const EventForm = ({ initialValues = null, onSuccess }) => {
@@ -58,9 +59,9 @@ export const EventForm = ({ initialValues = null, onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="event-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: 600 }}>
-      <h3 style={{ marginBottom: '0.5rem' }}>{isEdit ? 'Edit Event' : 'Create Event'}</h3>
-      {error && <div className="error-message" style={{ color: '#c0392b' }}>{error}</div>}
+    <form onSubmit={handleSubmit} className="event-form">
+      <h3>{isEdit ? 'Edit Event' : 'Create Event'}</h3>
+      {error && <div className="error-message">{error}</div>}
       <label>
         Title
         <input name="title" value={form.title} onChange={handleChange} required />

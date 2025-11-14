@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../utils/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { EventForm } from '../components/EventForm';
+import { AccountSettings } from '../components/AccountSettings';
+import { MyEvents } from '../components/MyEvents';
+import { MyRegistrations } from '../components/MyRegistrations';
 import '../styles/Dashboard.css';
 
 export const Dashboard = () => {
@@ -75,33 +79,28 @@ export const Dashboard = () => {
 
         {activeTab === 'my-events' && (
           <div className="my-events-section">
-            <h2>My Events</h2>
-            <button className="btn-primary" onClick={() => setActiveTab('create-event')}>
-              + Create New Event
-            </button>
-            <p>Your organized events will appear here.</p>
+            <MyEvents />
           </div>
         )}
 
         {activeTab === 'create-event' && (
           <div className="create-event-section">
-            <h2>Create New Event</h2>
-            <p>Event creation form coming soon...</p>
+            <EventForm onSuccess={(event) => {
+              alert(`Event "${event.title}" created successfully!`);
+              setActiveTab('my-events');
+            }} />
           </div>
         )}
 
         {activeTab === 'registrations' && (
           <div className="registrations-section">
-            <h2>My Registrations</h2>
-            <p>Your event registrations will appear here.</p>
+            <MyRegistrations />
           </div>
         )}
 
         {activeTab === 'settings' && (
           <div className="settings-section">
-            <h2>Profile Settings</h2>
-            <p>Email: {user?.email}</p>
-            <p>Account Settings coming soon...</p>
+            <AccountSettings />
           </div>
         )}
       </div>
