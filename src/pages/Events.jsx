@@ -100,36 +100,42 @@ export const Events = () => {
         </div>
 
         <div className="advanced-filters">
-          <select 
-            value={category} 
-            onChange={(e) => setCategory(e.target.value)}
-            className="filter-select"
-          >
-            <option value="">All Categories</option>
-            <option value="conference">Conference</option>
-            <option value="workshop">Workshop</option>
-            <option value="seminar">Seminar</option>
-            <option value="networking">Networking</option>
-            <option value="concert">Concert</option>
-            <option value="sports">Sports</option>
-            <option value="other">Other</option>
-          </select>
+          <div className="filter-group">
+            <label htmlFor="category-filter" className="filter-label">📂 Category</label>
+            <select 
+              id="category-filter"
+              value={category} 
+              onChange={(e) => setCategory(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All Categories</option>
+              <option value="conference">Conference</option>
+              <option value="workshop">Workshop</option>
+              <option value="seminar">Seminar</option>
+              <option value="networking">Networking</option>
+              <option value="concert">Concert</option>
+              <option value="sports">Sports</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
           <div className="date-filters">
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              placeholder="From"
+              placeholder="Start Date"
               className="filter-input"
+              title="Filter events from this date"
             />
             <span>to</span>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              placeholder="To"
+              placeholder="End Date"
               className="filter-input"
+              title="Filter events until this date"
             />
             <button 
               type="button" 
