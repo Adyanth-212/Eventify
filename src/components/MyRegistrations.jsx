@@ -3,7 +3,7 @@ import { registrationService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/MyRegistrations.css';
 
-export const MyRegistrations = () => {
+export const MyRegistrations = ({ onUpdate }) => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,6 +33,7 @@ export const MyRegistrations = () => {
       await registrationService.unregister(eventId);
       setRegistrations(prev => prev.filter(r => r._id !== registrationId));
       alert('Registration cancelled successfully');
+      if (onUpdate) onUpdate(); // Refresh parent stats
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to cancel registration');
     }

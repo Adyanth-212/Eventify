@@ -7,6 +7,7 @@ import '../styles/EventForm.css';
 export const EventForm = ({ initialValues = null, onSuccess }) => {
   const { user } = useAuth();
   const isEdit = !!initialValues;
+  
   const [form, setForm] = useState(initialValues || {
     title: '',
     description: '',
@@ -16,10 +17,12 @@ export const EventForm = ({ initialValues = null, onSuccess }) => {
     location: '',
     capacity: 1,
     price: 0,
+    image: '',
     tags: ''
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [imagePreview, setImagePreview] = useState(initialValues?.image || '');
 
   if (!user || (user.role !== 'organizer' && user.role !== 'admin')) {
     return <div style={{ padding: '1rem', background: '#fff3cd', borderRadius: 8 }}>You must be an organizer to create events.</div>;
@@ -28,6 +31,42 @@ export const EventForm = ({ initialValues = null, onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 2MB for base64)
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image size should be less than 2MB');
+      return;
+    }
+
+    setError('');
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      setForm((prev) => ({ ...prev, image: base64String }));
+      setImagePreview(base64String);
+    };
+    reader.onerror = () => {
+      setError('Failed to read image file');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setForm((prev) => ({ ...prev, image: '' }));
+    setImagePreview('');
   };
 
   const handleSubmit = async (e) => {
@@ -49,7 +88,8 @@ export const EventForm = ({ initialValues = null, onSuccess }) => {
       }
       if (onSuccess) onSuccess(res.data.event);
       if (!isEdit) {
-        setForm({ title: '', description: '', category: 'other', date: '', time: '', location: '', capacity: 1, price: 0, tags: '' });
+        setForm({ title: '', description: '', category: 'other', date: '', time: '', location: '', capacity: 1, price: 0, image: '', tags: '' });
+        setImagePreview('');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save event');
@@ -106,10 +146,39 @@ export const EventForm = ({ initialValues = null, onSuccess }) => {
           <input type="number" min={0} name="price" value={form.price} onChange={handleChange} />
         </label>
       </div>
+      <div className="image-upload-section">
+        <label>
+          Event Poster Image
+          <input 
+            type="file" 
+            accept="image/*" 
+            onChange={handleImageUpload}
+            className="file-input"
+          />
+          <small style={{ display: 'block', marginTop: '0.5rem', color: '#666' }}>
+            Max 2MB (JPG, PNG, GIF)
+          </small>
+        </label>
+        
+        {imagePreview && (
+          <div className="image-preview">
+            <img src={imagePreview} alt="Event preview" />
+            <button 
+              type="button" 
+              onClick={removeImage} 
+              className="remove-image-btn"
+            >
+              ✕ Remove Image
+            </button>
+          </div>
+        )}
+      </div>
+
       <label>
         Tags (comma-separated)
         <input name="tags" value={form.tags} onChange={handleChange} placeholder="e.g. react,javascript" />
       </label>
+
       <button type="submit" className="btn-primary" disabled={loading}>
         {loading ? (isEdit ? 'Saving...' : 'Creating...') : (isEdit ? 'Save Changes' : 'Create Event')}
       </button>

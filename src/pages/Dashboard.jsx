@@ -5,12 +5,56 @@ import { EventForm } from '../components/EventForm';
 import { AccountSettings } from '../components/AccountSettings';
 import { MyEvents } from '../components/MyEvents';
 import { MyRegistrations } from '../components/MyRegistrations';
+import { eventService, registrationService } from '../services/api';
 import '../styles/Dashboard.css';
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
+  const [stats, setStats] = useState({
+    eventsCount: 0,
+    upcomingCount: 0,
+    attendeesCount: 0
+  });
+
+  useEffect(() => {
+    fetchStats();
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      if (user?.role === 'organizer') {
+        // For organizers: fetch their created events
+        const res = await eventService.getMyEvents();
+        const events = res.data.events || [];
+        const upcoming = events.filter(e => new Date(e.date) >= new Date());
+        const totalAttendees = events.reduce((sum, e) => sum + (e.registeredCount || 0), 0);
+        
+        setStats({
+          eventsCount: events.length,
+          upcomingCount: upcoming.length,
+          attendeesCount: totalAttendees
+        });
+      } else {
+        // For attendees: fetch their registrations
+        const res = await registrationService.getMyRegistrations();
+        const registrations = res.data.registrations || [];
+        const upcoming = registrations.filter(r => {
+          const eventDate = new Date(r.event?.date);
+          return eventDate >= new Date();
+        });
+        
+        setStats({
+          eventsCount: registrations.length,
+          upcomingCount: upcoming.length,
+          attendeesCount: registrations.filter(r => r.status === 'registered').length
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -22,7 +66,10 @@ export const Dashboard = () => {
       <div className="dashboard-tabs">
         <button
           className={activeTab === 'overview' ? 'active' : ''}
-          onClick={() => setActiveTab('overview')}
+          onClick={() => {
+            setActiveTab('overview');
+            fetchStats(); // Refresh stats when clicking Overview
+          }}
         >
           Overview
         </button>
@@ -62,16 +109,16 @@ export const Dashboard = () => {
             <h2>Dashboard Overview</h2>
             <div className="stats-grid">
               <div className="stat-card">
-                <h3>0</h3>
+                <h3>{stats.eventsCount}</h3>
                 <p>Events {user?.role === 'organizer' ? 'Created' : 'Registered'}</p>
               </div>
               <div className="stat-card">
-                <h3>0</h3>
+                <h3>{stats.upcomingCount}</h3>
                 <p>Upcoming Events</p>
               </div>
               <div className="stat-card">
-                <h3>0</h3>
-                <p>Total Attendees</p>
+                <h3>{stats.attendeesCount}</h3>
+                <p>{user?.role === 'organizer' ? 'Total Attendees' : 'Active Registrations'}</p>
               </div>
             </div>
           </div>
@@ -87,6 +134,7 @@ export const Dashboard = () => {
           <div className="create-event-section">
             <EventForm onSuccess={(event) => {
               alert(`Event "${event.title}" created successfully!`);
+              fetchStats(); // Refresh stats after creating event
               setActiveTab('my-events');
             }} />
           </div>
@@ -94,7 +142,7 @@ export const Dashboard = () => {
 
         {activeTab === 'registrations' && (
           <div className="registrations-section">
-            <MyRegistrations />
+            <MyRegistrations onUpdate={fetchStats} />
           </div>
         )}
 

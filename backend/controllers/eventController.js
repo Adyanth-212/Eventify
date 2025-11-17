@@ -58,7 +58,7 @@ export const getEventById = async (req, res, next) => {
 export const createEvent = async (req, res, next) => {
   
   try {
-    const { title, description, category, date, time, location, capacity, price, tags } = req.body;
+    const { title, description, category, date, time, location, capacity, price, tags, image } = req.body;
 
     if (!title || !description || !date || !time || !location || !capacity) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
@@ -74,6 +74,7 @@ export const createEvent = async (req, res, next) => {
       capacity,
       price,
       tags,
+      image,
       organizer: req.user.id
     });
 
