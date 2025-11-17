@@ -240,6 +240,35 @@
   margin-top: 1rem;
 }
 
+.event-past-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 1rem;
+  border: 2px solid #d1d5db;
+}
+
+.past-event-indicator {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.btn-disabled {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: not-allowed;
+  background: #e5e7eb;
+  color: #9ca3af;
+  opacity: 0.6;
+}
+
 @media (max-width: 968px) {
   .event-hero {
     flex-direction: column;

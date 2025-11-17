@@ -28,6 +28,14 @@ export const EventDetails = () => {
     return organizerId === (user?._id || user?.id);
   }, [user, event]);
 
+  const isPastEvent = useMemo(() => {
+    if (!event?.date) return false;
+    const eventDate = new Date(event.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+    return eventDate < today;
+  }, [event]);
+
   useEffect(() => {
     const fetchEvent = async () => {
       setLoading(true);
@@ -46,6 +54,10 @@ export const EventDetails = () => {
 
   const handleRegister = async () => {
     if (!user) return navigate('/login');
+    if (isPastEvent) {
+      setError('Cannot register for past events');
+      return;
+    }
     setActionLoading(true);
     setError('');
     try {
@@ -138,7 +150,7 @@ export const EventDetails = () => {
             <div className="event-info-item">
               <div>
                 <strong>📅 Date</strong>
-                <span>{formattedDate}</span>
+                <span>{formattedDate} {isPastEvent && <span className="past-event-indicator">(Past Event)</span>}</span>
               </div>
             </div>
             
@@ -188,6 +200,7 @@ export const EventDetails = () => {
           </div>
 
           {isFull && <div className="event-full-badge">⚠️ This event is full</div>}
+          {isPastEvent && <div className="event-past-badge">📅 This event has already taken place</div>}
 
           {event.organizer && (
             <div className="event-organizer">
@@ -203,7 +216,11 @@ export const EventDetails = () => {
 
           {!isOrganizer && (
             <div className="event-actions">
-              {isRegistered ? (
+              {isPastEvent ? (
+                <button className="btn-disabled" disabled>
+                  📅 Event Has Ended
+                </button>
+              ) : isRegistered ? (
                 <button className="btn-secondary" onClick={handleUnregister} disabled={actionLoading}>
                   {actionLoading ? 'Unregistering...' : '✓ Registered - Click to Unregister'}
                 </button>

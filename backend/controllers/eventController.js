@@ -4,11 +4,32 @@ import User from '../models/User.js';
 export const getAllEvents = async (req, res, next) => {
   
   try {
-    const { status, category, page = 1, limit = 10 } = req.query;
+    const { status, category, page = 1, limit = 12, dateFrom, dateTo } = req.query;
     const filter = {};
 
-    if (status && ['upcoming', 'ongoing', 'completed', 'cancelled'].includes(status)) {
-      filter.status = status;
+    // Handle date-based filtering for upcoming/past events
+    if (status) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+      
+      if (status === 'upcoming') {
+        filter.date = { $gte: today };
+      } else if (status === 'past') {
+        filter.date = { $lt: today };
+      }
+    }
+
+    // Handle custom date range filtering (overrides status-based filtering)
+    if (dateFrom || dateTo) {
+      filter.date = {};
+      if (dateFrom) {
+        filter.date.$gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        const endDate = new Date(dateTo);
+        endDate.setHours(23, 59, 59, 999); // End of the day
+        filter.date.$lte = endDate;
+      }
     }
 
     if (category && ['conference', 'workshop', 'seminar', 'networking', 'concert', 'sports', 'other'].includes(category)) {
@@ -20,7 +41,7 @@ export const getAllEvents = async (req, res, next) => {
       .populate('organizer', 'name email profilePicture')
       .skip(skip)
       .limit(parseInt(limit))
-      .sort({ date: 1 });
+      .sort({ date: -1 });
 
     const total = await Event.countDocuments(filter);
 
@@ -28,7 +49,8 @@ export const getAllEvents = async (req, res, next) => {
       success: true,
       events,
       total,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
+      currentPage: parseInt(page)
     });
   } catch (error) {
     next(error);

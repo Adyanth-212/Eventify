@@ -12,6 +12,14 @@ export const registerForEvent = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
+    // Check if event is in the past
+    const eventDate = new Date(event.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of today
+    if (eventDate < today) {
+      return res.status(400).json({ success: false, message: 'Cannot register for past events' });
+    }
+
     // Check if user already registered
     const existingRegistration = await Registration.findOne({
       user: req.user.id,

@@ -13,16 +13,33 @@ export const Events = () => {
   const [category, setCategory] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
-  }, [filter, category]);
+  }, [filter, category, currentPage]);
+
+  // Separate useEffect for date changes to avoid too many API calls
+  useEffect(() => {
+    if (dateFrom || dateTo) {
+      const timeout = setTimeout(() => {
+        setCurrentPage(1);
+        fetchEvents();
+      }, 500); // Debounce date changes
+      return () => clearTimeout(timeout);
+    }
+  }, [dateFrom, dateTo]);
 
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = {
+        page: currentPage,
+        limit: 12 // Show 12 events per page
+      };
       if (filter !== 'all') params.status = filter;
       if (category) params.category = category;
       if (dateFrom) params.dateFrom = dateFrom;
@@ -30,6 +47,8 @@ export const Events = () => {
       
       const response = await eventService.getAll(params);
       setEvents(response.data.events || []);
+      setTotalPages(response.data.pages || 1);
+      setTotalEvents(response.data.total || 0);
       setError('');
     } catch (err) {
       setError('Failed to fetch events');
@@ -42,6 +61,7 @@ export const Events = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!search.trim()) {
+      setCurrentPage(1);
       fetchEvents();
       return;
     }
@@ -49,11 +69,40 @@ export const Events = () => {
     try {
       const response = await eventService.search(search);
       setEvents(response.data.events || []);
+      setCurrentPage(1);
+      setTotalPages(1);
     } catch (err) {
       setError('Search failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (newCategory) => {
+    setCategory(newCategory);
+    setCurrentPage(1);
+  };
+
+  const handleDateFilter = () => {
+    setCurrentPage(1);
+    fetchEvents();
+  };
+
+  const handleClearFilters = () => {
+    setDateFrom('');
+    setDateTo('');
+    setCategory('');
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewEvent = (eventId) => {
@@ -81,19 +130,19 @@ export const Events = () => {
         <div className="filter-tabs">
           <button
             className={filter === 'all' ? 'active' : ''}
-            onClick={() => setFilter('all')}
+            onClick={() => handleFilterChange('all')}
           >
             All Events
           </button>
           <button
             className={filter === 'upcoming' ? 'active' : ''}
-            onClick={() => setFilter('upcoming')}
+            onClick={() => handleFilterChange('upcoming')}
           >
             Upcoming
           </button>
           <button
             className={filter === 'past' ? 'active' : ''}
-            onClick={() => setFilter('past')}
+            onClick={() => handleFilterChange('past')}
           >
             Past Events
           </button>
@@ -105,7 +154,7 @@ export const Events = () => {
             <select 
               id="category-filter"
               value={category} 
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="filter-select"
             >
               <option value="">All Categories</option>
@@ -169,15 +218,52 @@ export const Events = () => {
       ) : events.length === 0 ? (
         <div className="no-events">No events found</div>
       ) : (
-        <div className="events-grid">
-          {events.map((event) => (
-            <EventCard
-              key={event._id}
-              event={event}
-              onRegister={handleViewEvent}
-            />
-          ))}
-        </div>
+        <>
+          <div className="events-header-info">
+            <p>Showing {events.length} of {totalEvents} events</p>
+          </div>
+          <div className="events-grid">
+            {events.map((event) => (
+              <EventCard
+                key={event._id}
+                event={event}
+                onRegister={handleViewEvent}
+              />
+            ))}
+          </div>
+          
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </button>
+              
+              <div className="pagination-numbers">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    className={`pagination-number ${page === currentPage ? 'active' : ''}`}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                className="pagination-btn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
