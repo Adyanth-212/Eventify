@@ -9,7 +9,6 @@ import { Events } from './pages/Events';
 import { EventDetails } from './pages/EventDetails';
 import { Dashboard } from './pages/Dashboard';
 import './styles/globals.css';
-import './App.css';
 
 function App() {
   return (

@@ -20,7 +20,7 @@ export const MyEvents = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await eventService.getAll({ organizer: user._id || user.id });
+      const res = await eventService.getMyEvents();
       setEvents(res.data.events || []);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load events');
@@ -106,9 +106,9 @@ export const MyEvents = () => {
               <div className="event-content">
                 <h3>{event.title}</h3>
                 <p className="event-date">
-                  📅 {new Date(event.date).toLocaleDateString()} at {event.time}
+                  {new Date(event.date).toLocaleDateString()} at {event.time}
                 </p>
-                <p className="event-location">📍 {event.location}</p>
+                <p className="event-location">{event.location}</p>
                 <p className="event-capacity">
                   👥 {event.registeredCount || 0} / {event.capacity} registered
                 </p>
@@ -117,13 +117,13 @@ export const MyEvents = () => {
                     className="btn-secondary" 
                     onClick={() => handleEdit(event)}
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                   <button 
                     className="btn-danger" 
                     onClick={() => handleDelete(event._id)}
                   >
-                    🗑️ Delete
+                    Delete
                   </button>
                 </div>
               </div>

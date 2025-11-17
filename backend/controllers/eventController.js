@@ -1,5 +1,6 @@
 import Event from '../models/Event.js';
 import User from '../models/User.js';
+import Registration from '../models/Registration.js';
 
 export const getAllEvents = async (req, res, next) => {
   
@@ -71,6 +72,21 @@ export const getEventById = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       event
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyEvents = async (req, res, next) => {
+  try {
+    const events = await Event.find({ organizer: req.user.id })
+      .populate('organizer', 'name email profilePicture')
+      .sort({ date: -1 });
+
+    return res.status(200).json({
+      success: true,
+      events
     });
   } catch (error) {
     next(error);
@@ -155,21 +171,77 @@ export const deleteEvent = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
-    // Check if user is organizer
-    if (event.organizer.toString() !== req.user.id) {
+    // Check if user is organizer or admin
+    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this event' });
     }
 
     await Event.findByIdAndDelete(req.params.id);
 
-    // Remove from user's eventsCreated
-    await User.findByIdAndUpdate(req.user.id, {
-      $pull: { eventsCreated: req.params.id }
-    });
+    // Remove from user's eventsCreated (only if not admin deleting someone else's event)
+    if (event.organizer.toString() === req.user.id) {
+      await User.findByIdAndUpdate(req.user.id, {
+        $pull: { eventsCreated: req.params.id }
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: 'Event deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Get all events with management info
+export const getAllEventsAdmin = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, status, organizer } = req.query;
+    const filter = {};
+
+    if (status && ['upcoming', 'past'].includes(status)) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (status === 'upcoming') {
+        filter.date = { $gte: today };
+      } else {
+        filter.date = { $lt: today };
+      }
+    }
+
+    if (organizer) {
+      filter.organizer = organizer;
+    }
+
+    const skip = (page - 1) * limit;
+    const events = await Event.find(filter)
+      .populate('organizer', 'name email role profilePicture')
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    const total = await Event.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
+
+    // Get registration counts for each event
+    const eventsWithStats = await Promise.all(
+      events.map(async (event) => {
+        const registrationCount = await Registration.countDocuments({ event: event._id });
+        return {
+          ...event.toObject(),
+          actualRegistrationCount: registrationCount
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      events: eventsWithStats,
+      currentPage: parseInt(page),
+      totalPages,
+      total
     });
   } catch (error) {
     next(error);

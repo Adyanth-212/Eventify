@@ -128,13 +128,13 @@ export const getEventRegistrations = async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
-    // Check if user is organizer
+    // Check if user is organizer or admin
     const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ success: false, message: 'Event not found' });
     }
 
-    if (event.organizer.toString() !== req.user.id) {
+    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
@@ -145,6 +145,76 @@ export const getEventRegistrations = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       registrations
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Get all registrations across all events
+export const getAllRegistrationsAdmin = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 20, status, eventId } = req.query;
+    const filter = {};
+
+    if (status && ['registered', 'attended', 'cancelled'].includes(status)) {
+      filter.status = status;
+    }
+
+    if (eventId) {
+      filter.event = eventId;
+    }
+
+    const skip = (page - 1) * limit;
+    const registrations = await Registration.find(filter)
+      .populate('user', 'name email phone profilePicture role')
+      .populate('event', 'title date location organizer')
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    const total = await Registration.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      success: true,
+      registrations,
+      currentPage: parseInt(page),
+      totalPages,
+      total
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Delete any registration
+export const deleteRegistrationAdmin = async (req, res, next) => {
+  try {
+    const { registrationId } = req.params;
+    
+    const registration = await Registration.findById(registrationId);
+    if (!registration) {
+      return res.status(404).json({ success: false, message: 'Registration not found' });
+    }
+
+    // Update event registered count
+    await Event.findByIdAndUpdate(registration.event, {
+      $inc: { registeredCount: -1 },
+      $pull: { attendees: registration.user }
+    });
+
+    // Remove from user's eventsRegistered
+    await User.findByIdAndUpdate(registration.user, {
+      $pull: { eventsRegistered: registration.event }
+    });
+
+    // Delete registration
+    await Registration.findByIdAndDelete(registrationId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Registration deleted successfully'
     });
   } catch (error) {
     next(error);

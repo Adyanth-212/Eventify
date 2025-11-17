@@ -33,6 +33,7 @@ apiClient.interceptors.response.use(
 export const eventService = {
   getAll: (params = {}) => apiClient.get('/events', { params }),
   getById: (id) => apiClient.get(`/events/${id}`),
+  getMyEvents: () => apiClient.get('/events/my-events'),
   create: (data) => apiClient.post('/events', data),
   update: (id, data) => apiClient.put(`/events/${id}`, data),
   delete: (id) => apiClient.delete(`/events/${id}`),

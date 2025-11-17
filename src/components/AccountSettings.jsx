@@ -103,7 +103,7 @@ export const AccountSettings = () => {
           className={activeSection === 'account' ? 'active' : ''}
           onClick={() => setActiveSection('account')}
         >
-          ⚙️ Account
+          Account
         </button>
       </div>
 
@@ -223,7 +223,7 @@ export const AccountSettings = () => {
             <div className="info-grid">
               <div className="info-item">
                 <span className="label">Account Type:</span>
-                <span className="value">{user?.role === 'organizer' ? '🎤 Event Organizer' : '👤 Attendee'}</span>
+                <span className="value">{user?.role === 'organizer' ? 'Event Organizer' : 'Attendee'}</span>
               </div>
               <div className="info-item">
                 <span className="label">Member Since:</span>

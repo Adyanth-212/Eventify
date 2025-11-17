@@ -149,7 +149,7 @@ export const EventDetails = () => {
           <div className="event-info-grid">
             <div className="event-info-item">
               <div>
-                <strong>📅 Date</strong>
+                <strong>Date</strong>
                 <span>{formattedDate} {isPastEvent && <span className="past-event-indicator">(Past Event)</span>}</span>
               </div>
             </div>
@@ -163,7 +163,7 @@ export const EventDetails = () => {
             
             <div className="event-info-item">
               <div>
-                <strong>📍 Location</strong>
+                <strong>Location</strong>
                 <span>{event.location}</span>
               </div>
             </div>
@@ -199,8 +199,8 @@ export const EventDetails = () => {
             </div>
           </div>
 
-          {isFull && <div className="event-full-badge">⚠️ This event is full</div>}
-          {isPastEvent && <div className="event-past-badge">📅 This event has already taken place</div>}
+          {isFull && <div className="event-full-badge">This event is full</div>}
+          {isPastEvent && <div className="event-past-badge">This event has already taken place</div>}
 
           {event.organizer && (
             <div className="event-organizer">
@@ -218,7 +218,7 @@ export const EventDetails = () => {
             <div className="event-actions">
               {isPastEvent ? (
                 <button className="btn-disabled" disabled>
-                  📅 Event Has Ended
+                  Event Has Ended
                 </button>
               ) : isRegistered ? (
                 <button className="btn-secondary" onClick={handleUnregister} disabled={actionLoading}>
@@ -230,7 +230,7 @@ export const EventDetails = () => {
                   onClick={handleRegister} 
                   disabled={actionLoading || isFull}
                 >
-                  {actionLoading ? 'Processing...' : isFull ? '🚫 Event Full' : '🎟️ Register for Event'}
+                  {actionLoading ? 'Processing...' : isFull ? 'Event Full' : 'Register for Event'}
                 </button>
               )}
             </div>
@@ -239,7 +239,7 @@ export const EventDetails = () => {
           {isOrganizer && (
             <div className="event-actions">
               <button className="btn-secondary" onClick={() => navigate(`/dashboard`)}>
-                📊 Manage Event
+                Manage Event
               </button>
             </div>
           )}

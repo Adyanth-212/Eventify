@@ -5,6 +5,7 @@ import { EventForm } from '../components/EventForm';
 import { AccountSettings } from '../components/AccountSettings';
 import { MyEvents } from '../components/MyEvents';
 import { MyRegistrations } from '../components/MyRegistrations';
+import { AdminDashboard } from '../components/AdminDashboard';
 import { eventService, registrationService } from '../services/api';
 import '../styles/Dashboard.css';
 
@@ -56,11 +57,16 @@ export const Dashboard = () => {
     }
   };
 
+  // Show admin dashboard for admin users
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
+  }
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Welcome, {user?.name}! 👋</h1>
-        <p>Role: <strong>{user?.role === 'organizer' ? '🎤 Event Organizer' : '👤 Attendee'}</strong></p>
+        <h1>Welcome, {user?.name}!</h1>
+        <p>Role: <strong>{user?.role === 'organizer' ? 'Event Organizer' : user?.role === 'admin' ? 'Administrator' : 'Attendee'}</strong></p>
       </div>
 
       <div className="dashboard-tabs">

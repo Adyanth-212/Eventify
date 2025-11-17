@@ -1,4 +1,6 @@
 import User from '../models/User.js';
+import Event from '../models/Event.js';
+import Registration from '../models/Registration.js';
 import jwt from 'jsonwebtoken';
 
 const generateToken = (id, role) => {
@@ -179,6 +181,125 @@ export const changePassword = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: 'Password changed successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Get all users with detailed info
+export const getAllUsersAdmin = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 50, role, search, detailed = false } = req.query;
+    const filter = {};
+
+    if (role && ['attendee', 'organizer', 'admin'].includes(role)) {
+      filter.role = role;
+    }
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    
+    // Include password for admin view if detailed is requested
+    const selectFields = detailed === 'true' ? '+password' : '-password';
+    
+    const users = await User.find(filter)
+      .select(selectFields)
+      .populate('eventsCreated', 'title')
+      .populate('eventsRegistered', 'title')
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    // Mask passwords for frontend display
+    const usersWithMaskedPasswords = users.map(user => {
+      const userObj = user.toObject();
+      if (userObj.password) {
+        userObj.maskedPassword = '•'.repeat(Math.min(userObj.password.length, 12));
+        delete userObj.password; // Remove actual password for security
+      }
+      return userObj;
+    });
+
+    const total = await User.countDocuments(filter);
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      success: true,
+      users: usersWithMaskedPasswords,
+      currentPage: parseInt(page),
+      totalPages,
+      total
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Update user role
+export const updateUserRoleAdmin = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    if (!['attendee', 'organizer', 'admin'].includes(role)) {
+      return res.status(400).json({ success: false, message: 'Invalid role' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    user.role = role;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'User role updated successfully',
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Admin: Delete user
+export const deleteUserAdmin = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Don't allow deleting other admins
+    if (user.role === 'admin' && user._id.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Cannot delete other admin users' });
+    }
+
+    // Clean up user's data
+    await Event.deleteMany({ organizer: userId });
+    await Registration.deleteMany({ user: userId });
+
+    // Delete user
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
     });
   } catch (error) {
     next(error);

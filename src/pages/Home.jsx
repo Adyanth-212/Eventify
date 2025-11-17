@@ -8,7 +8,7 @@ export const Home = () => {
     <div className="home-container">
       <section className="hero">
         <div className="hero-content">
-          <h1>Welcome to Eventify 🎯</h1>
+          <h1>Welcome to Eventify</h1>
           <p>Discover, register, and manage events effortlessly</p>
           <div className="hero-buttons">
             <button className="btn-primary" onClick={() => navigate('/events')}>
@@ -25,22 +25,22 @@ export const Home = () => {
         <h2>Why Eventify?</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <span className="feature-icon">🎪</span>
+            <span className="feature-icon">Events</span>
             <h3>Discover Events</h3>
             <p>Find events in your area, filter by date, location, and category</p>
           </div>
           <div className="feature-card">
-            <span className="feature-icon">📝</span>
+            <span className="feature-icon">Register</span>
             <h3>Easy Registration</h3>
             <p>Register for events with just a few clicks</p>
           </div>
           <div className="feature-card">
-            <span className="feature-icon">🎤</span>
+            <span className="feature-icon">Organize</span>
             <h3>Create Events</h3>
             <p>Organize and manage your own events easily</p>
           </div>
           <div className="feature-card">
-            <span className="feature-icon">🔔</span>
+            <span className="feature-icon">Notify</span>
             <h3>Stay Updated</h3>
             <p>Get notifications about your registered events</p>
           </div>

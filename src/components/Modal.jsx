@@ -20,14 +20,14 @@ export const Modal = ({ isOpen, onClose, children, title }) => {
 
 export const RegistrationModal = ({ isOpen, onClose, event, registration }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Registration Successful! 🎉">
+    <Modal isOpen={isOpen} onClose={onClose} title="Registration Successful!">
       <div className="registration-success">
         <div className="success-icon">✓</div>
         <h3>You're all set for {event?.title}!</h3>
         
         <div className="ticket-details">
           <div className="ticket-header">
-            <span className="ticket-label">🎟️ Your Ticket</span>
+            <span className="ticket-label">Your Ticket</span>
           </div>
           <div className="ticket-info">
             <p><strong>Event:</strong> {event?.title}</p>
@@ -41,9 +41,9 @@ export const RegistrationModal = ({ isOpen, onClose, event, registration }) => {
         <div className="next-steps">
           <h4>What's Next?</h4>
           <ul>
-            <li>✉️ Check your email for confirmation</li>
-            <li>📱 Add the event to your calendar</li>
-            <li>👥 View your registrations in the Dashboard</li>
+            <li>Check your email for confirmation</li>
+            <li>Add the event to your calendar</li>
+            <li>View your registrations in the Dashboard</li>
           </ul>
         </div>
 
